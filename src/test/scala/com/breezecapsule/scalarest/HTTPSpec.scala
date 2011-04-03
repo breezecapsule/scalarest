@@ -29,7 +29,7 @@ class HTTPSpec extends FlatSpec with ShouldMatchers {
         val server = HTTP.createServer(8080);
         try {
 
-            server.react {
+            server reactsTo {
                 case Get("/a", _) => {
                     Text("Hello world!");
                 }
@@ -54,7 +54,7 @@ class HTTPSpec extends FlatSpec with ShouldMatchers {
             val testXml = <a>
                 <b>test</b>
             </a>;
-            server.react {
+            server reactsTo {
                 case Get("/a", _) => {
                     Xml(testXml);
                 }
@@ -76,7 +76,7 @@ class HTTPSpec extends FlatSpec with ShouldMatchers {
     "A reactor that handles GET request with image/gif response" should "produce correct output" in {
         val server = HTTP.createServer(8080);
         try {
-            server.react {
+            server reactsTo {
                 case Get("/a", _) => {
                     ByteStream("image/gif", Source.fromString("Hello world!").toStream.map(_.toByte));
                 }
@@ -95,7 +95,7 @@ class HTTPSpec extends FlatSpec with ShouldMatchers {
         val server = HTTP.createServer(8080);
         try {
 
-            server.react {
+            server reactsTo {
                 case Get("/a", params) => params.get("b") match {
                     case Some(b) => Text(b);
                     case None => Text("");
@@ -116,7 +116,7 @@ class HTTPSpec extends FlatSpec with ShouldMatchers {
     "A reactor that returns not found" should "produce HTTP 404" in {
         val server = HTTP.createServer(8080);
         try {
-            server.react {
+            server reactsTo {
                 case Get("/a", _) => {
                     ResourceNotFound()
                 }
@@ -136,7 +136,7 @@ class HTTPSpec extends FlatSpec with ShouldMatchers {
     "A reactor that returns not authorized" should "produce HTTP 401" in {
         val server = HTTP.createServer(8080);
         try {
-            server.react {
+            server reactsTo {
                 case Get("/a", _) => {
                     ResourceUnauthorized()
                 }
@@ -156,12 +156,11 @@ class HTTPSpec extends FlatSpec with ShouldMatchers {
     "Multiple reactors " should " be matched sequentially" in {
         val server = HTTP.createServer(8080);
         try {
-            server.react {
+            server reactsTo {
                 case Get("/a", _) => {
                     Text("a")
                 }
-            }
-            server.react {
+            } and {
                 case Get("/b", _) => {
                     Text("b")
                 }
@@ -183,7 +182,7 @@ class HTTPSpec extends FlatSpec with ShouldMatchers {
             val reactor1:PartialFunction[ResourceRequest, ResourceRepresentation] = {case Get("/a", _) => Text("a")};
             val reactor2:PartialFunction[ResourceRequest, ResourceRepresentation] = {case Get("/b", _) => Text("b")};
 
-            server.react(reactor1 orElse reactor2);
+            server reactsTo (reactor1 orElse reactor2);
 
             server.start;
 
@@ -201,7 +200,7 @@ class HTTPSpec extends FlatSpec with ShouldMatchers {
             val WithinFolder = "/folder/(\\d+)".r
 
 
-            server.react {
+            server reactsTo {
                 case Get(WithinFolder(id), _) => {
                     Text(id);
                 }

@@ -120,12 +120,42 @@ class HTTPServer(port: Int) extends Lifecycle {
     /**
      * Add a reactor to the HTTPServer that will handle matching requests
      */
-    def react(reactor: PartialFunction[ResourceRequest, ResourceRepresentation]) = {
+    def reactsTo(reactor: PartialFunction[ResourceRequest, ResourceRepresentation]):AndWord = {
         requestRouter.registerReactor(reactor);
+        new AndWord {
+            def and(reactor: PartialFunction[ResourceRequest, ResourceRepresentation]):AndWord = {
+               requestRouter.registerReactor(reactor);
+               return this;
+            };
+        }
     }
 
-
 }
+
+/**
+ * 'To' of the reactor DSL.
+ */
+trait ToWord {
+
+    /**
+     * Reacting to the given reactor
+     * @reactor a PartialFunction representing the case statements of inputs the reactor will respond to.
+     */
+    def to(reactor: PartialFunction[ResourceRequest, ResourceRepresentation]):AndWord;
+}
+
+/**
+ * And of the reactor DSL.
+ */
+trait AndWord {
+
+    /**
+     * Reacting to the given reactor
+     * @reactor a PartialFunction representing the case statements of inputs the reactor will respond to.
+     */
+    def and(reactor: PartialFunction[ResourceRequest, ResourceRepresentation]):AndWord;
+}
+
 
 /**
  * Jetty handler for providing the routing logic.
