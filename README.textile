@@ -1,6 +1,20 @@
 h1. Introduction
 
-ScalaRest is a "Node.js":http://www.nodejs.org inspired Scala library for developing server supporting REST-like APIs. The library builds on the high-performance embedded Jetty HTTP(s) engine, makes use of Scala language feature to succinctly write REST-like service.
+ScalaRest is a "Node.js":http://www.nodejs.org inspired Scala library for developing REST-like servers. The library builds on an embedded Jetty HTTP(s) engine. It allows developer to makes use of Scala language feature to succinctly develop REST services.
+
+<pre>
+<code>
+val server = HTTP.createServer(8080);
+server reactsTo {
+    case Get("/folder", _) => {
+        Xml(<folder>
+            <item>1</item>
+        </folder>);
+    }
+}
+server.start();
+</code>
+</pre>
 
 h1. Licence
 
