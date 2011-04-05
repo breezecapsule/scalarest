@@ -5,12 +5,14 @@ ScalaRest is a "Node.js":http://www.nodejs.org inspired Scala library for develo
 <pre>
 <code>
 val server = HTTP.createServer(8080);
+val WithinFolder = "/folder/(\\d+)".r
 server reactsTo {
-    case Get("/folder", _) => {
+    case Get("/folder", _) =>
         Xml(<folder>
             <item>1</item>
         </folder>);
-    }
+    case Put(WithinFolder(item), params) =>
+        Text("item stored");
 }
 server.start();
 </code>
