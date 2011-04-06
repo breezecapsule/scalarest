@@ -12,6 +12,7 @@ import io.Source
 import java.io.{IOException, FileNotFoundException}
 import java.net.{HttpURLConnection, URL}
 import javax.servlet.http.HttpServletResponse
+import java.util.concurrent.ConcurrentHashMap
 ;
 
 class HTTPSpec extends FlatSpec with ShouldMatchers {
@@ -237,7 +238,7 @@ class HTTPSpec extends FlatSpec with ShouldMatchers {
             connection.setInstanceFollowRedirects(false);
             Source.fromInputStream(connection.getInputStream);
             connection.getResponseCode should equal(HttpServletResponse.SC_MOVED_PERMANENTLY);
-            connection.getHeaderField("Location") should equal ("/b");
+            connection.getHeaderField("Location") should equal("/b");
         } finally {
             server.stop;
         }
@@ -288,6 +289,5 @@ class HTTPSpec extends FlatSpec with ShouldMatchers {
             server.stop;
         }
     }
-
 
 }

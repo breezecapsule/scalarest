@@ -44,9 +44,9 @@ case class Text(text: String) extends MimeResource("text/plain");
 
 case class Xml(xml: Elem) extends MimeResource("text/xml");
 
-case class CharacterStream(override val mimeType:String, source: Source) extends MimeResource(mimeType);
+case class CharacterStream(override val mimeType: String, source: Source) extends MimeResource(mimeType);
 
-case class ByteStream(override val mimeType:String, stream: Stream[Byte]) extends MimeResource(mimeType);
+case class ByteStream(override val mimeType: String, stream: Stream[Byte]) extends MimeResource(mimeType);
 
 
 /**
@@ -121,12 +121,12 @@ class HTTPServer(port: Int) extends Lifecycle {
     /**
      * Add a reactor to the HTTPServer that will handle matching requests
      */
-    def reactsTo(reactor: PartialFunction[ResourceRequest, ResourceRepresentation]):AndWord = {
+    def reactsTo(reactor: PartialFunction[ResourceRequest, ResourceRepresentation]): AndWord = {
         requestRouter.registerReactor(reactor);
         new AndWord {
-            def and(reactor: PartialFunction[ResourceRequest, ResourceRepresentation]):AndWord = {
-               requestRouter.registerReactor(reactor);
-               return this;
+            def and(reactor: PartialFunction[ResourceRequest, ResourceRepresentation]): AndWord = {
+                requestRouter.registerReactor(reactor);
+                return this;
             };
         }
     }
@@ -142,7 +142,7 @@ trait AndWord {
      * Reacting to the given reactor
      * @reactor a PartialFunction representing the case statements of inputs the reactor will respond to.
      */
-    def and(reactor: PartialFunction[ResourceRequest, ResourceRepresentation]):AndWord;
+    def and(reactor: PartialFunction[ResourceRequest, ResourceRepresentation]): AndWord;
 }
 
 
@@ -170,7 +170,13 @@ protected class RequestRouterHandler extends AbstractHandler {
 
         val parameters: scala.collection.mutable.Map[String, Array[String]] =
             request.getParameterMap.asScala.asInstanceOf[scala.collection.mutable.Map[String, Array[String]]];
-        val resourceRequest = Get(request.getRequestURI, parameters.mapValues(_(0)).toMap);
+
+        val resourceRequest = request.getMethod match {
+            case "GET" => Get(request.getRequestURI, parameters.mapValues(_(0)).toMap);
+            case "PUT" => Put(request.getRequestURI, parameters.mapValues(_(0)).toMap);
+            case "DELETE" => Delete(request.getRequestURI, parameters.mapValues(_(0)).toMap);
+            case "POST" => Post(request.getRequestURI, parameters.mapValues(_(0)).toMap);
+        };
         reactors.find(_.isDefinedAt(resourceRequest)) match {
             case Some(reactor) => routeRequestToReactor(reactor, resourceRequest, request, response);
             case _ => handle404(request, response);
